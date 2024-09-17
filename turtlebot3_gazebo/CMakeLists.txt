@@ -27,6 +27,8 @@ find_package(nav_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(OpenCV REQUIRED)  # Added OpenCV
+find_package(cv_bridge REQUIRED) # Added cv_bridge
 
 ################################################################################
 # Build
@@ -38,29 +40,43 @@ link_directories(
 include_directories(
   include
   ${GAZEBO_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}  # Added OpenCV includes
 )
 
-set(dependencies
+set(dependencies	
   "geometry_msgs"
   "nav_msgs"
   "rclcpp"
   "sensor_msgs"
   "tf2"
+  "cv_bridge" 
 )
 
-set(EXEC_NAME "turtlebot3_drive")
+set(EXEC_NAME "turtlebot3_gazebo")
 
-add_executable(${EXEC_NAME} src/turtlebot3_drive.cpp)
+# Include both turtlebot3_drive.cpp and turtlebot3_camera.cpp
+add_executable(${EXEC_NAME} 
+  src/main.cpp
+  src/CTurtlebot3Camera.cpp
+  src/CTurtlebot3Laser.cpp  
+  src/CTurtlebot3Movement.cpp
+  src/CTurtlebot3Occupancy.cpp
+  src/CTurtlebot3Odometry.cpp
+)
+
 ament_target_dependencies(${EXEC_NAME} ${dependencies})
 
+# Link OpenCV libraries
+target_link_libraries(${EXEC_NAME} ${GAZEBO_LIBRARIES} ${OpenCV_LIBS})
+
 add_library(obstacle1 SHARED models/turtlebot3_dqn_world/obstacle_plugin/obstacle1.cc)
-target_link_libraries(obstacle1 ${GAZEBO_LIBRARIES})
+target_link_libraries(obstacle1 ${GAZEBO_LIBRARIES} ${OpenCV_LIBS})  # Added OpenCV
 
 add_library(obstacle2 SHARED models/turtlebot3_dqn_world/obstacle_plugin/obstacle2.cc)
-target_link_libraries(obstacle2 ${GAZEBO_LIBRARIES})
+target_link_libraries(obstacle2 ${GAZEBO_LIBRARIES} ${OpenCV_LIBS})  # Added OpenCV
 
 add_library(obstacles SHARED models/turtlebot3_dqn_world/obstacle_plugin/obstacles.cc)
-target_link_libraries(obstacles ${GAZEBO_LIBRARIES})
+target_link_libraries(obstacles ${GAZEBO_LIBRARIES} ${OpenCV_LIBS})  # Added OpenCV
 
 ################################################################################
 # Install
@@ -88,3 +104,4 @@ ament_export_dependencies(rclcpp)
 ament_export_dependencies(sensor_msgs)
 ament_export_dependencies(tf2)
 ament_package()
+

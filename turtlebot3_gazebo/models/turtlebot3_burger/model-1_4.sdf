@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 <sdf version="1.4">
-  <model name="turtlebot3_burger">
+  <model name="turtlebot3_burger">  
     <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
 
     <link name="base_footprint"/>
 
-    <link name="base_link">
+     <link name="base_link">
 
       <inertial>
         <pose>-0.032 0 0.070 0 0 0</pose>
@@ -20,7 +20,7 @@
         <mass>8.2573504e-01</mass>
       </inertial>
 
-      <collision name="base_collision">
+       <collision name="base_collision">
         <pose>-0.032 0 0.070 0 0 0</pose>
         <geometry>
           <box>
@@ -180,6 +180,7 @@
         <mass>2.8498940e-02</mass>
       </inertial>
 
+
       <collision name="wheel_left_collision">
         <pose>0 0.08 0.023 -1.57 0 0</pose>
         <geometry>
@@ -237,8 +238,8 @@
         </inertia>
         <mass>2.8498940e-02</mass>
       </inertial>
-
-      <collision name="wheel_right_collision">
+    
+       <collision name="wheel_right_collision">
         <pose>0.0 -0.08 0.023 -1.57 0 0</pose>
         <geometry>
           <cylinder>
@@ -270,7 +271,7 @@
         </surface>
       </collision>
 
-      <visual name="wheel_right_visual">
+     <visual name="wheel_right_visual">
         <pose>0.0 -0.08 0.023 0 0 0</pose>
         <geometry>
           <mesh>
@@ -280,6 +281,7 @@
         </geometry>
       </visual>
     </link>
+
 
     <link name='caster_back_link'>
       <pose>-0.081 0 -0.004 -1.57 0 0</pose>
@@ -315,7 +317,61 @@
       </collision>
     </link>
 
-    <joint name="base_joint" type="fixed">
+    <link name="camera_link"/>
+
+    <link name="camera_rgb_frame">
+      <inertial>
+        <pose>0.076 0.0 0.093 0 0 0</pose>
+        <inertia>
+          <ixx>0.001</ixx>
+          <ixy>0.000</ixy>
+          <ixz>0.000</ixz>
+          <iyy>0.001</iyy>
+          <iyz>0.000</iyz>
+          <izz>0.001</izz>
+        </inertia>
+        <mass>0.035</mass>
+      </inertial>
+
+      <pose>0.076 0.0 0.093 0 0 0</pose>
+      <sensor name="camera" type="camera">
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <update_rate>30</update_rate>
+        <camera name="picam">
+          <horizontal_fov>1.085595</horizontal_fov>
+          <image>
+              <width>640</width>
+              <height>480</height>
+              <format>R8G8B8</format>
+          </image>
+          <clip>
+              <near>0.03</near>
+              <far>100</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <!-- Noise is sampled independently per pixel on each frame.
+                  That pixel's noise value is added to each of its color
+                  channels, which at that point lie in the range [0,1]. -->
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+          <plugin name="camera_driver" filename="libgazebo_ros_camera.so">
+            <ros>
+              <!-- <namespace>test_cam</namespace> -->
+              <!-- <remapping>image_raw:=image_demo</remapping> -->
+              <!-- <remapping>camera_info:=camera_info_demo</remapping> -->
+            </ros>
+            <!-- camera_name>omit so it defaults to sensor name</camera_name-->
+            <!-- frame_name>omit so it defaults to link name</frameName-->
+            <!-- <hack_baseline>0.07</hack_baseline> -->
+          </plugin>
+      </sensor>
+    </link>    
+
+     <joint name="base_joint" type="fixed">
       <parent>base_footprint</parent>
       <child>base_link</child>
       <pose>0.0 0.0 0.010 0 0 0</pose>
@@ -339,7 +395,7 @@
       </axis>
     </joint>
 
-    <joint name='caster_back_joint' type='ball'>
+   <joint name='caster_back_joint' type='ball'>
       <parent>base_link</parent>
       <child>caster_back_link</child>
     </joint>
@@ -351,12 +407,31 @@
       <axis>
         <xyz>0 0 1</xyz>
       </axis>
-    </joint>
+    </joint>    
 
     <joint name="lidar_joint" type="fixed">
       <parent>base_link</parent>
       <child>base_scan</child>
       <pose>-0.032 0 0.171 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+    
+
+    <joint name="camera_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>camera_link</child>
+      <pose>0.073 -0.011 0.084 0 0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+    <joint name="camera_rgb_joint" type="fixed">
+      <parent>camera_link</parent>
+      <child>camera_rgb_frame</child>
+      <pose>0.003 0.011 0.009 0 0 0</pose>
       <axis>
         <xyz>0 0 1</xyz>
       </axis>
@@ -375,7 +450,7 @@
       <right_joint>wheel_right_joint</right_joint>
 
       <!-- kinematics -->
-      <wheel_separation>0.160</wheel_separation>
+      <wheel_separation>0.287</wheel_separation>
       <wheel_diameter>0.066</wheel_diameter>
 
       <!-- limits -->
@@ -403,6 +478,7 @@
       <update_rate>30</update_rate>
       <joint_name>wheel_left_joint</joint_name>
       <joint_name>wheel_right_joint</joint_name>
-    </plugin>      
+    </plugin>    
+
   </model>
 </sdf>
